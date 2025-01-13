@@ -1,4 +1,4 @@
-package com.github.lstudioo.localpropertieseditorplugin
+package com.github.lstudioo.propertieseditor
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

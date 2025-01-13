@@ -1,4 +1,4 @@
-package com.github.lstudioo.localpropertieseditorplugin.listeners
+package com.github.lstudioo.propertieseditor.listeners
 
 import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.diagnostic.thisLogger

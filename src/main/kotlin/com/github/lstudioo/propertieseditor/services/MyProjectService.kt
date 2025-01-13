@@ -1,9 +1,9 @@
-package com.github.lstudioo.localpropertieseditorplugin.services
+package com.github.lstudioo.propertieseditor.services
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.github.lstudioo.localpropertieseditorplugin.MyBundle
+import com.github.lstudioo.propertieseditor.MyBundle
 
 @Service(Service.Level.PROJECT)
 class MyProjectService(project: Project) {

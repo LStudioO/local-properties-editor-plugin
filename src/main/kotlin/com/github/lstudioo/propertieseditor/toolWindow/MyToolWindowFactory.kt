@@ -1,4 +1,4 @@
-package com.github.lstudioo.localpropertieseditorplugin.toolWindow
+package com.github.lstudioo.propertieseditor.toolWindow
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -8,8 +8,8 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
-import com.github.lstudioo.localpropertieseditorplugin.MyBundle
-import com.github.lstudioo.localpropertieseditorplugin.services.MyProjectService
+import com.github.lstudioo.propertieseditor.MyBundle
+import com.github.lstudioo.propertieseditor.services.MyProjectService
 import javax.swing.JButton
 
 
