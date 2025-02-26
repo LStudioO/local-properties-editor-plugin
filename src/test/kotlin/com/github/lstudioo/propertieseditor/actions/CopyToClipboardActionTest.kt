@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.Messages
 import io.mockk.*
 import io.mockk.junit4.MockKRule
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertArrayEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -20,7 +20,11 @@ class CopyToClipboardActionTest {
     @Test
     fun `actionPerformed should copy properties to clipboard`() {
         // Arrange
-        val expectedText = "test.boolean=true\rtest.string=test value\r"
+        val expectedLines = listOf(
+            "test.boolean=true",
+            "test.string=test value",
+            ""
+        )
         val testProperties = listOf(
             Property(
                 key = "test.boolean",
@@ -51,9 +55,9 @@ class CopyToClipboardActionTest {
 
         // Assert
         verify(exactly = 1) { viewModel.getProperties() }
-        // The first line is the header with the date
-        val actualText = contentSlot.captured.split("\n").drop(1).joinToString("")
-        assertEquals(expectedText, actualText)
+        // The first line is the header with the date, so we skip it during comparison
+        val actualLines = contentSlot.captured.split(System.lineSeparator()).drop(1)
+        assertArrayEquals(expectedLines.toTypedArray(), actualLines.toTypedArray())
     }
 
     private fun createSut(
