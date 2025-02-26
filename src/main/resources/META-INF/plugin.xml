@@ -6,13 +6,13 @@
 
     <depends>com.intellij.modules.platform</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <resource-bundle>messages.localization</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.lstudioo.propertieseditor.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow factoryClass="com.github.lstudioo.propertieseditor.toolWindow.PropertyEditorToolWindowFactory"
+                    icon="/icons/logo.svg"
+                    id="Local Property Editor"/>
+        <projectConfigurable groupId="tools" displayName="Property Editor Settings"
+                             instance="com.github.lstudioo.propertieseditor.settings.PropertyEditorSettingsConfigurable"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.lstudioo.propertieseditor.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
 </idea-plugin>
