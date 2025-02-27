@@ -64,6 +64,7 @@ class PropertyRepository(
 
     // Loads properties from the local.properties file
     private fun loadProperties() {
+        properties.clear()
         propertiesFile.inputStream().use { properties.load(it) }
     }
 

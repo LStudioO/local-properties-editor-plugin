@@ -120,6 +120,8 @@ class PropertyEditorViewModel(
 
     fun reloadConfiguration() {
         try {
+            properties = emptyList()
+            originalProperties = emptyList()
             loadProperties()
         } catch (e: Exception) {
             updateError("Failed to reload configuration. Please check settings: ${e.message}")
