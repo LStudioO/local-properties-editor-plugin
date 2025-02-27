@@ -5,6 +5,7 @@ import com.github.lstudioo.propertieseditor.model.dto.PresetDto
 import com.github.lstudioo.propertieseditor.model.dto.SchemaDto
 import com.github.lstudioo.propertieseditor.model.dto.SchemaMapper
 import com.github.lstudioo.propertieseditor.services.PropertyEditorService
+import com.github.lstudioo.propertieseditor.utils.OrderedProperties
 import com.google.gson.Gson
 import com.intellij.openapi.vfs.LocalFileSystem
 import java.io.File
@@ -14,7 +15,7 @@ class PropertyRepository(
     private val propertyEditorService: PropertyEditorService,
 ) {
     private val mapper = SchemaMapper()
-    private val properties = Properties()
+    private val properties = OrderedProperties()
     private val gson = Gson()
     private val observers = mutableListOf<PropertyRepositoryObserver>()
     private var propertyDefinitions: List<PropertyDefinition> = emptyList()
@@ -151,7 +152,9 @@ class PropertyRepository(
 
     fun resetToDefaults() {
         propertyDefinitions.forEach { definition ->
-            properties.setProperty(definition.key, definition.defaultValue?.asString())
+            definition.defaultValue?.asString()?.let { defaultValue ->
+                properties.setProperty(definition.key, defaultValue)
+            }
         }
         saveProperties()
         notifyObservers()
