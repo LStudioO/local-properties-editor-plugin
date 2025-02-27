@@ -2,6 +2,7 @@ package com.github.lstudioo.propertieseditor.viewmodel
 
 import com.github.lstudioo.propertieseditor.model.Preset
 import com.github.lstudioo.propertieseditor.model.Property
+import com.github.lstudioo.propertieseditor.model.PropertySource
 import com.github.lstudioo.propertieseditor.model.PropertyValue
 import com.github.lstudioo.propertieseditor.model.SortOption
 import com.github.lstudioo.propertieseditor.repository.PropertyRepository
@@ -47,7 +48,7 @@ class PropertyEditorViewModelTest {
         // Act
         viewModel.loadProperties()
         viewModel.filterProperties("boolean")
-        val filteredProperties = viewModel.getProperties()
+        val filteredProperties = viewModel.getAllProperties()
 
         // Assert
         assertEquals(1, filteredProperties.size)
@@ -69,7 +70,7 @@ class PropertyEditorViewModelTest {
         viewModel.sortProperties(SortOption.KEY_ASC)
 
         // Assert
-        val sortedProperties = viewModel.getProperties()
+        val sortedProperties = viewModel.getAllProperties()
         assertEquals(3, sortedProperties.size)
         assertEquals("test.array", sortedProperties[0].key)
         assertEquals("test.boolean", sortedProperties[1].key)
@@ -91,7 +92,7 @@ class PropertyEditorViewModelTest {
         viewModel.sortProperties(SortOption.KEY_DESC)
 
         // Assert
-        val sortedProperties = viewModel.getProperties()
+        val sortedProperties = viewModel.getAllProperties()
         assertEquals(3, sortedProperties.size)
         assertEquals("test.string", sortedProperties[0].key)
         assertEquals("test.boolean", sortedProperties[1].key)
@@ -113,7 +114,7 @@ class PropertyEditorViewModelTest {
         viewModel.sortProperties(SortOption.TYPE)
 
         // Assert
-        val sortedProperties = viewModel.getProperties()
+        val sortedProperties = viewModel.getAllProperties()
         assertEquals(3, sortedProperties.size)
         // The exact order depends on the implementation, but we can verify all properties are present
         assertTrue(sortedProperties.any { it.key == "test.array" })
@@ -136,6 +137,70 @@ class PropertyEditorViewModelTest {
         // Assert
         assertEquals(1, presetNames.size)
         assertEquals("TestPreset", presetNames[0])
+    }
+
+    @Test
+    fun `getSchemaOnlyProperties should return only schema properties`() {
+        // Arrange
+        val repository = mockk<PropertyRepository> {
+            every { loadConfiguration() } just Runs
+            every { getProperties() } returns listOf(
+                Property("test.both", PropertyValue.StringValue("both"), "Both property", PropertySource.BOTH),
+                Property("test.schema", PropertyValue.StringValue("schema"), "Schema property", PropertySource.SCHEMA_ONLY),
+                Property("test.file", PropertyValue.StringValue("file"), "File property", PropertySource.FILE_ONLY)
+            )
+        }
+        val viewModel = createSut(repository = repository)
+
+        // Act
+        viewModel.loadProperties()
+        val schemaOnlyProps = viewModel.getSchemaOnlyProperties()
+
+        // Assert
+        assertEquals(1, schemaOnlyProps.size)
+        assertEquals("test.schema", schemaOnlyProps[0].key)
+    }
+
+    @Test
+    fun `getFileAndSchemaProperties should return non-schema-only properties`() {
+        // Arrange
+        val repository = mockk<PropertyRepository> {
+            every { loadConfiguration() } just Runs
+            every { getProperties() } returns listOf(
+                Property("test.both", PropertyValue.StringValue("both"), "Both property", PropertySource.BOTH),
+                Property("test.schema", PropertyValue.StringValue("schema"), "Schema property", PropertySource.SCHEMA_ONLY),
+                Property("test.file", PropertyValue.StringValue("file"), "File property", PropertySource.FILE_ONLY)
+            )
+        }
+        val viewModel = createSut(repository = repository)
+
+        // Act
+        viewModel.loadProperties()
+        val fileAndSchemaProps = viewModel.getFileAndSchemaProperties()
+
+        // Assert
+        assertEquals(2, fileAndSchemaProps.size)
+        assertTrue(fileAndSchemaProps.any { it.key == "test.both" })
+        assertTrue(fileAndSchemaProps.any { it.key == "test.file" })
+    }
+
+    @Test
+    fun `deleteProperty should call repository deleteProperty`() {
+        // Arrange
+        val property = Property("test.key", PropertyValue.StringValue("value"), "Description")
+        val repository = mockk<PropertyRepository> {
+            every { deleteProperty(any()) } just Runs
+            every { loadConfiguration() } just Runs
+            every { getProperties() } returns emptyList()
+        }
+        val viewModel = createSut(repository = repository)
+
+        // Act
+        viewModel.deleteProperty(property)
+
+        // Assert
+        verify(exactly = 1) { repository.deleteProperty("test.key") }
+        verify(exactly = 1) { repository.loadConfiguration() }
     }
 
     private fun createSut(
@@ -175,15 +240,17 @@ class PropertyEditorViewModelTest {
                     Property(
                         key = "test.boolean",
                         value = PropertyValue.BooleanValue(false),
-                        description = "Test boolean property"
+                        description = "Test boolean property",
+                        source = PropertySource.FILE_ONLY
                     ),
                     Property(
                         key = "test.string",
                         value = PropertyValue.StringValue("preset value"),
-                        description = "Test string property"
+                        description = "Test string property",
+                        source = PropertySource.BOTH,
                     )
                 )
             )
         )
     }
-} 
+}

@@ -2,6 +2,7 @@ package com.github.lstudioo.propertieseditor.repository
 
 import com.github.lstudioo.propertieseditor.model.FileSettings
 import com.github.lstudioo.propertieseditor.model.Property
+import com.github.lstudioo.propertieseditor.model.PropertySource
 import com.github.lstudioo.propertieseditor.model.PropertyValue
 import com.github.lstudioo.propertieseditor.services.PropertyEditorService
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -126,6 +127,61 @@ class PropertyRepositoryTest {
         props.load(tempPropertiesFile.inputStream())
         assertEquals("true", props.getProperty("test.boolean"))
         assertEquals("default", props.getProperty("test.string"))
+    }
+
+    @Test
+    fun `getProperties should identify properties from schema not in file`() {
+        // Arrange
+        // Only add one property to the file but the schema has two
+        writePropertiesToFile(mapOf(
+            "test.boolean" to "true"
+        ))
+        val repository = createSut()
+        repository.loadConfiguration()
+        
+        // Act
+        val properties = repository.getProperties()
+        
+        // Assert
+        assertEquals(2, properties.size)
+        // Property in file and schema
+        val fileProperty = properties.find { it.key == "test.boolean" }
+        assertNotNull(fileProperty)
+        assertEquals(PropertySource.BOTH, fileProperty?.source)
+        
+        // Property in schema but not in file
+        val schemaProperty = properties.find { it.key == "test.string" }
+        assertNotNull(schemaProperty)
+        assertEquals(PropertySource.SCHEMA_ONLY, schemaProperty?.source)
+    }
+
+    @Test
+    fun `deleteProperty should remove property from properties file`() {
+        // Arrange
+        writePropertiesToFile(mapOf(
+            "test.boolean" to "true",
+            "test.string" to "test value"
+        ))
+        val repository = createSut()
+        repository.loadConfiguration()
+        
+        // Mock file system interactions
+        mockkStatic(LocalFileSystem::class)
+        every { LocalFileSystem.getInstance() } returns mockFileSystem
+        every { mockFileSystem.findFileByIoFile(any()) } returns mockVirtualFile
+        
+        // Act
+        repository.deleteProperty("test.boolean")
+        
+        // Assert
+        verify(exactly = 1) { mockVirtualFile.refresh(false, false) }
+        verify(exactly = 2) { mockObserver.onPropertiesReloaded() } // Once for loadConfiguration, once for deleteProperty
+        
+        // Verify property was removed
+        val properties = Properties()
+        properties.load(tempPropertiesFile.inputStream())
+        assertFalse(properties.containsKey("test.boolean"))
+        assertTrue(properties.containsKey("test.string"))
     }
     
     private fun createSut(
