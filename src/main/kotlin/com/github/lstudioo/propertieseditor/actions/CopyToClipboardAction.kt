@@ -26,7 +26,7 @@ class CopyToClipboardAction(
     ) {
 
     override fun actionPerformed(e: AnActionEvent) {
-        val properties = mapToProperties(viewModel.getProperties())
+        val properties = mapToProperties(viewModel.getFileAndSchemaProperties())
         val text = properties.toStringFormat()
         clipboardManager.setClipboardContents(text)
         Messages.showInfoMessage(
