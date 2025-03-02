@@ -10,6 +10,7 @@ import com.github.lstudioo.propertieseditor.repository.PropertyRepositoryObserve
 import com.github.lstudioo.propertieseditor.utils.ValidationUtils.getValidationMessage
 import com.github.lstudioo.propertieseditor.utils.ValidationUtils.validatePropertyValue
 import com.intellij.openapi.diagnostic.logger
+import java.io.FileNotFoundException
 
 /**
  * ViewModel for the Property Editor UI.
@@ -85,6 +86,13 @@ class PropertyEditorViewModel(
             repository.loadConfiguration()
             originalProperties = repository.getProperties()
             originalSchemaOnlyProperties = originalProperties.filter { it.source == PropertySource.SCHEMA_ONLY }
+            updateFilteredAndSortedProperties()
+        } catch (e: FileNotFoundException) {
+            // File not found - this is handled by showing the welcome panel
+            logger.info("Property file not found: ${e.message}")
+            // Don't show error message as we'll display the welcome panel instead
+            originalProperties = emptyList()
+            originalSchemaOnlyProperties = emptyList()
             updateFilteredAndSortedProperties()
         } catch (e: Exception) {
             logger.warn("Failed to load properties", e)
