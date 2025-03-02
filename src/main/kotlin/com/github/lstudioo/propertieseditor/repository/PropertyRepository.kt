@@ -9,6 +9,7 @@ import com.github.lstudioo.propertieseditor.utils.OrderedProperties
 import com.google.gson.Gson
 import com.intellij.openapi.vfs.LocalFileSystem
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.*
 
 /**
@@ -56,6 +57,13 @@ class PropertyRepository(
      * Loads and parses the JSON schema
      */
     private fun loadSchema() {
+        if (!configFile.exists()) {
+            // If schema file doesn't exist, use empty schema
+            propertyDefinitions = emptyList()
+            presets = emptyList()
+            return
+        }
+        
         val schemaJson = configFile.readText()
         val schema = gson.fromJson(schemaJson, SchemaDto::class.java)
         propertyDefinitions = schema.properties.map(mapper::mapDefinition)
@@ -81,6 +89,11 @@ class PropertyRepository(
      */
     private fun loadProperties() {
         properties.clear()
+        
+        if (!propertiesFile.exists()) {
+            throw FileNotFoundException("Properties file not found: ${propertiesFile.absolutePath}")
+        }
+        
         propertiesFile.inputStream().use { properties.load(it) }
     }
 

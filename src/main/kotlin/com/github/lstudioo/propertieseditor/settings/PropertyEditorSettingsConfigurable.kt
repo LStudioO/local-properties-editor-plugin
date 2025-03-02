@@ -1,6 +1,7 @@
 package com.github.lstudioo.propertieseditor.settings
 
 import com.github.lstudioo.propertieseditor.LocalizationBundle
+import com.github.lstudioo.propertieseditor.toolWindow.PropertyEditorSettingsListener
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import javax.swing.JComponent
@@ -27,8 +28,8 @@ class PropertyEditorSettingsConfigurable(private val project: Project) : Configu
         val settings = PropertyEditorSettings.getInstance(project)
         return settingsComponent?.let { component ->
             component.propertiesFilePath != settings.propertiesFilePath ||
-            component.configFilePath != settings.configFilePath
-        } ?: false
+                    component.configFilePath != settings.configFilePath
+        } == true
     }
 
     override fun apply() {
@@ -36,6 +37,9 @@ class PropertyEditorSettingsConfigurable(private val project: Project) : Configu
         settingsComponent?.let { component ->
             settings.propertiesFilePath = component.propertiesFilePath
             settings.configFilePath = component.configFilePath
+            
+            // Notify listeners that settings have changed
+            project.messageBus.syncPublisher(PropertyEditorSettingsListener.TOPIC).settingsChanged()
         }
     }
 

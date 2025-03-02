@@ -11,6 +11,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="com.github.lstudioo.propertieseditor.toolWindow.PropertyEditorToolWindowFactory"
                     icon="/icons/logo.svg"
+                    canCloseContents="false"
                     id="Local Property Editor"/>
         <projectConfigurable groupId="tools" displayName="Property Editor Settings"
                              instance="com.github.lstudioo.propertieseditor.settings.PropertyEditorSettingsConfigurable"/>
